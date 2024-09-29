@@ -31,35 +31,67 @@ class PrefixSampler:
             pubmed_sep = ' Answer:'
             texts = [t[:t.index(pubmed_sep) + len(pubmed_sep)] for t in texts]
             all_encoded = self.base_tokenizer(texts, return_tensors="pt", padding=True).to(self.args.device)
+        elif self.args.dataset in ['THUCNews']:
+            # No need to split Chinese characters by spaces
+            texts = [t[: int(len(t) * truncate_ratio)] for t in texts]
+            all_encoded = self.base_tokenizer(texts, return_tensors="pt", padding=True).to(self.args.device)
         else:
             texts = [t.split(' ') for t in texts]
             texts = [' '.join(t[: int(len(t) * truncate_ratio)]) for t in texts]
             all_encoded = self.base_tokenizer(texts, return_tensors="pt", padding=True).to(self.args.device)
 
-        self.base_model.eval()
-        decoded = ['' for _ in range(len(texts))]
+        if self.args.dataset in ['THUCNews']:
+            self.base_model.eval()
+            decoded = ['' for _ in range(len(texts))]
 
-        # sample from the model until we get a sample with at least min_words words for each example
-        # this is an inefficient way to do this (since we regenerate for all inputs if just one is too short), but it works
-        tries = 0
-        m = 0
-        while m < min_words:
-            if tries != 0:
-                print()
-                print(f"min words: {m}, needed {min_words}, regenerating (try {tries})")
+            # sample from the model until we get a sample with at least min_words words for each example
+            # this is an inefficient way to do this (since we regenerate for all inputs if just one is too short), but it works
+            tries = 0
+            m = 0
 
-            sampling_kwargs = {'temperature': self.args.temperature}
-            if self.args.do_top_p:
-                sampling_kwargs['top_p'] = self.args.top_p
-            elif self.args.do_top_k:
-                sampling_kwargs['top_k'] = self.args.top_k
-            min_length = 50 if self.args.dataset in ['pubmed'] else 150
-            outputs = self.base_model.generate(**all_encoded, min_length=min_length, max_length=200, do_sample=True,
-                                               **sampling_kwargs, pad_token_id=self.base_tokenizer.eos_token_id,
-                                               eos_token_id=self.base_tokenizer.eos_token_id)
-            decoded = self.base_tokenizer.batch_decode(outputs, skip_special_tokens=True)
-            m = min(len(x.split()) for x in decoded)
-            tries += 1
+            while m < min_words:
+                if tries != 0:
+                    print()
+                    print(f"min words: {m}, needed {min_words}, regenerating (try {tries})")
+
+                sampling_kwargs = {'temperature': self.args.temperature}
+                if self.args.do_top_p:
+                    sampling_kwargs['top_p'] = self.args.top_p
+                elif self.args.do_top_k:
+                    sampling_kwargs['top_k'] = self.args.top_k
+                min_length = 50 if self.args.dataset in ['pubmed'] else 150
+                outputs = self.base_model.generate(**all_encoded, min_length=min_length, max_length=200, do_sample=True,
+                                                **sampling_kwargs, pad_token_id=self.base_tokenizer.eos_token_id,
+                                                eos_token_id=self.base_tokenizer.eos_token_id)
+                decoded = self.base_tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                m = min(len(x) for x in decoded)
+                tries += 1
+        else:
+            self.base_model.eval()
+            decoded = ['' for _ in range(len(texts))]
+
+            # sample from the model until we get a sample with at least min_words words for each example
+            # this is an inefficient way to do this (since we regenerate for all inputs if just one is too short), but it works
+            tries = 0
+            m = 0
+            while m < min_words:
+                if tries != 0:
+                    print()
+                    print(f"min words: {m}, needed {min_words}, regenerating (try {tries})")
+
+                sampling_kwargs = {'temperature': self.args.temperature}
+                if self.args.do_top_p:
+                    sampling_kwargs['top_p'] = self.args.top_p
+                elif self.args.do_top_k:
+                    sampling_kwargs['top_k'] = self.args.top_k
+                min_length = 50 if self.args.dataset in ['pubmed'] else 150
+                outputs = self.base_model.generate(**all_encoded, min_length=min_length, max_length=200, do_sample=True,
+                                                **sampling_kwargs, pad_token_id=self.base_tokenizer.eos_token_id,
+                                                eos_token_id=self.base_tokenizer.eos_token_id)
+                decoded = self.base_tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                m = min(len(x.split()) for x in decoded)
+                tries += 1
+
 
         return decoded
 
