@@ -23,19 +23,28 @@ def get_fpr_tpr(result_file):
         return res['metrics']['fpr'], res['metrics']['tpr']
 
 def report_main_results(args):
-    datasets = {'xsum': 'XSum',
-                'squad': 'SQuAD',
-                'writing': 'WritingPrompts'}
-    source_models = {'gpt2-xl': 'GPT-2',
-                     'opt-2.7b': 'OPT-2.7',
-                     'gpt-neo-2.7B': 'Neo-2.7',
-                     'gpt-j-6B': 'GPT-J',
-                     'gpt-neox-20b': 'NeoX'}
+    datasets = {
+                'xsum': 'XSum',
+                # 'squad': 'SQuAD',
+                # 'writing': 'WritingPrompts',
+                'THUCNews': 'THUCNews',
+                'local-news-zh': 'local-news-zh',
+                'local-webnovel': 'local-webnovel',
+                'local-wiki-zh': 'local-wiki-zh'}
+    source_models = {
+                    #  'gpt2-xl': 'GPT-2',
+                    #  'opt-2.7b': 'OPT-2.7',
+                    #  'gpt-neo-2.7B': 'Neo-2.7',
+                    #  'gpt-j-6B': 'GPT-J',
+                    #  'gpt-neox-20b': 'NeoX',
+                     'Qwen2-1.5B': 'Qwen2-1.5B',
+                     'Qwen2-7B': 'Qwen2-7B'}
     methods1 = {'likelihood': 'Likelihood',
                'entropy': 'Entropy',
                'logrank': 'LogRank',
-               'lrr': 'LRR',
-               'npr': 'NPR'}
+            #    'lrr': 'LRR',
+            #    'npr': 'NPR'
+               }
     methods2 = {'perturbation_100': 'DetectGPT',
                'sampling_discrepancy': 'Fast-DetectGPT'}
 
@@ -75,18 +84,18 @@ def report_main_results(args):
         cols = [f'{col:.4f}' for col in cols]
         print('(Diff)', ' '.join(cols))
         # black-box comparison
-        filters = {'perturbation_100': '.t5-3b_gpt-neo-2.7B',
-                    'sampling_discrepancy': '.gpt-j-6B_gpt-neo-2.7B'}
-        results = {}
-        for method in methods2:
-            method_name = methods2[method]
-            cols = _get_method_aurocs(dataset, method, filters[method])
-            results[method_name] = cols
-            cols = [f'{col:.4f}' for col in cols]
-            print(method_name, ' '.join(cols))
-        cols = np.array(results['Fast-DetectGPT']) - np.array(results['DetectGPT'])
-        cols = [f'{col:.4f}' for col in cols]
-        print('(Diff)', ' '.join(cols))
+        # filters = {'perturbation_100': '.t5-3b_gpt-neo-2.7B',
+        #             'sampling_discrepancy': '.gpt-j-6B_gpt-neo-2.7B'}
+        # results = {}
+        # for method in methods2:
+        #     method_name = methods2[method]
+        #     cols = _get_method_aurocs(dataset, method, filters[method])
+        #     results[method_name] = cols
+        #     cols = [f'{col:.4f}' for col in cols]
+        #     print(method_name, ' '.join(cols))
+        # cols = np.array(results['Fast-DetectGPT']) - np.array(results['DetectGPT'])
+        # cols = [f'{col:.4f}' for col in cols]
+        # print('(Diff)', ' '.join(cols))
 
 def report_main_ext_results(args):
     datasets = {'xsum': 'XSum',

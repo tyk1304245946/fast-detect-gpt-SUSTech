@@ -44,54 +44,55 @@ class DataBuilder:
         self.base_model = None if args.openai_model else load_model(args.base_model_name, args.device, args.cache_dir)
 
     def _openai_sample(self, prefix):
-        def _drop_last_word(text):
-            return ' '.join(text.split(' ')[:-1])
+        raise NotImplementedError
+        # def _drop_last_word(text):
+        #     return ' '.join(text.split(' ')[:-1])
 
-        import openai
-        assert self.args.openai_key is not None, "Must provide OpenAI API key as --openai_key"
-        openai.api_key = self.args.openai_key
-        if self.args.openai_base is not None:
-            openai.api_base = self.args.openai_base
+        # import openai
+        # assert self.args.openai_key is not None, "Must provide OpenAI API key as --openai_key"
+        # openai.api_key = self.args.openai_key
+        # if self.args.openai_base is not None:
+        #     openai.api_base = self.args.openai_base
 
-        if self.args.dataset != 'pubmed':  # keep Answer: prefix for pubmed
-            prefix = _drop_last_word(prefix)
+        # if self.args.dataset != 'pubmed':  # keep Answer: prefix for pubmed
+        #     prefix = _drop_last_word(prefix)
 
-        # sample from the openai model
-        kwargs = {"max_tokens": 200}
-        if self.args.do_top_p:
-            kwargs['top_p'] = self.args.top_p
-        elif self.args.do_top_k:
-            kwargs['top_k'] = self.args.top_k
-        elif self.args.do_temperature:
-            kwargs['temperature'] = self.args.temperature
+        # # sample from the openai model
+        # kwargs = {"max_tokens": 200}
+        # if self.args.do_top_p:
+        #     kwargs['top_p'] = self.args.top_p
+        # elif self.args.do_top_k:
+        #     kwargs['top_k'] = self.args.top_k
+        # elif self.args.do_temperature:
+        #     kwargs['temperature'] = self.args.temperature
 
-        if self.args.openai_model == 'davinci':
-            kwargs["engine"] = self.args.openai_model
-            response = openai.Completion.create(prompt=f"{prefix}", **kwargs)
-            return prefix + response['choices'][0]['text']
+        # if self.args.openai_model == 'davinci':
+        #     kwargs["engine"] = self.args.openai_model
+        #     response = openai.Completion.create(prompt=f"{prefix}", **kwargs)
+        #     return prefix + response['choices'][0]['text']
 
-        elif self.args.openai_model in ['gpt-3.5-turbo', 'gpt-4']:
-            roles = {'xsum': 'You are a News writer.',
-                     'writing': 'You are a Fiction writer.',
-                     'pubmed': 'You are a Technical writer.'}
-            prompts = {'xsum': 'Please write an article with about 150 words starting exactly with:',
-                       'writing': 'Please write an article with about 150 words starting exactly with:',
-                       'pubmed': 'Please answer the question in about 50 words.'}
-            messages = [
-                {'role': 'system', 'content': roles[self.args.dataset]},
-                {'role': 'user', 'content': f'{prompts[self.args.dataset]} {prefix}'},
-            ]
-            kwargs["model"] = self.args.openai_model
-            kwargs["messages"] = messages
-            response = openai.ChatCompletion.create(**kwargs)
-            response = response['choices'][0]['message']['content']
-            # ChatGPT may repeat the prefix
-            if response.startswith(prefix[:20]):
-                return response
-            return prefix + ' ' + response
+        # elif self.args.openai_model in ['gpt-3.5-turbo', 'gpt-4']:
+        #     roles = {'xsum': 'You are a News writer.',
+        #              'writing': 'You are a Fiction writer.',
+        #              'pubmed': 'You are a Technical writer.'}
+        #     prompts = {'xsum': 'Please write an article with about 150 words starting exactly with:',
+        #                'writing': 'Please write an article with about 150 words starting exactly with:',
+        #                'pubmed': 'Please answer the question in about 50 words.'}
+        #     messages = [
+        #         {'role': 'system', 'content': roles[self.args.dataset]},
+        #         {'role': 'user', 'content': f'{prompts[self.args.dataset]} {prefix}'},
+        #     ]
+        #     kwargs["model"] = self.args.openai_model
+        #     kwargs["messages"] = messages
+        #     response = openai.ChatCompletion.create(**kwargs)
+        #     response = response['choices'][0]['message']['content']
+        #     # ChatGPT may repeat the prefix
+        #     if response.startswith(prefix[:20]):
+        #         return response
+        #     return prefix + ' ' + response
 
-        else:
-            raise NotImplementedError
+        # else:
+        #     raise NotImplementedError
 
     # sample from base_model using ****only**** the first 30 tokens in each example as context
     def _sample_from_model(self, texts, min_words=55, prompt_tokens=30):
@@ -104,18 +105,55 @@ class DataBuilder:
             all_encoded = {key: value[:, :prompt_tokens] for key, value in all_encoded.items()}
 
         if self.args.openai_model:
-            # decode the prefixes back into text
-            prefixes = self.base_tokenizer.batch_decode(all_encoded['input_ids'], skip_special_tokens=True)
+            raise NotImplementedError
+            # # decode the prefixes back into text
+            # prefixes = self.base_tokenizer.batch_decode(all_encoded['input_ids'], skip_special_tokens=True)
 
-            decoded = []
-            for idx, prefix in enumerate(prefixes):
-                while idx >= len(decoded):
-                    try:
-                        decoded.append(self._openai_sample(prefix))
-                    except Exception as ex:
-                        print(ex)
-                        print('Wait 10 minutes before retry ...')
-                        time.sleep(600)
+            # decoded = []
+            # for idx, prefix in enumerate(prefixes):
+            #     while idx >= len(decoded):
+            #         try:
+            #             decoded.append(self._openai_sample(prefix))
+            #         except Exception as ex:
+            #             print(ex)
+            #             print('Wait 10 minutes before retry ...')
+            #             time.sleep(600)
+
+
+
+        # for Chinese, we don't need to get x.split()
+        if self.args.dataset in ['THUCNews']:
+            self.base_model.eval()
+            decoded = ['' for _ in range(len(texts))]
+            
+            tries = 0
+            m = 0
+
+            while m < min_words:
+                if tries != 0:
+                    print()
+                    print(f"min words: {m}, needed {min_words}, regenerating (try {tries})")
+                    prefixes = self.base_tokenizer.batch_decode(all_encoded['input_ids'], skip_special_tokens=True)
+                    for prefix, x in zip(prefixes, decoded):
+                        if len(x) == m:
+                            print(prefix, '=>', x)
+
+                sampling_kwargs = {}
+                if self.args.do_top_p:
+                    sampling_kwargs['top_p'] = self.args.top_p
+                elif self.args.do_top_k:
+                    sampling_kwargs['top_k'] = self.args.top_k
+                elif self.args.do_temperature:
+                    sampling_kwargs['temperature'] = self.args.temperature
+                min_length = 50 if self.args.dataset in ['pubmed'] else 150
+                outputs = self.base_model.generate(**all_encoded, min_length=min_length, max_length=200, do_sample=True,
+                                                   **sampling_kwargs, pad_token_id=self.base_tokenizer.eos_token_id,
+                                                   eos_token_id=self.base_tokenizer.eos_token_id)
+                decoded = self.base_tokenizer.batch_decode(outputs, skip_special_tokens=True)
+                m = min(len(x) for x in decoded)
+                tries += 1
+
+
 
         else:
             self.base_model.eval()
@@ -224,6 +262,12 @@ def generate_data(args, dataset, key):
         if len(long_data) > 0:
             data = long_data
 
+    # try to keep only examlples with > 400 汉字
+    if dataset in ['SirlyDreamer/THUCNews']:
+        long_data = [x for x in data if len(x) > 400]
+        if len(long_data) > 0:
+            data = long_data
+
     random.shuffle(data)
     data = data[:5_000]
 
@@ -235,9 +279,19 @@ def generate_data(args, dataset, key):
 
     # print stats about remaining data
     print(f"Total number of samples: {len(data)}")
-    print(f"Average number of words: {np.mean([len(x.split()) for x in data])}")
+    if dataset in ['SirlyDreamer/THUCNews']:
+        print(f"Average number of words: {np.mean([len(x) for x in data])}")
+    else:
+        print(f"Average number of words: {np.mean([len(x.split()) for x in data])}")
 
     return data_builder.generate_samples(data[:args.n_samples], batch_size=args.batch_size)
+
+dataset_fullnames = {
+    'THUCNews': 'SirlyDreamer/THUCNews'
+}
+
+def get_dataset_fullname(dataset_name):
+    return dataset_fullnames[dataset_name] if dataset_name in dataset_fullnames else dataset_name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -269,8 +323,10 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
-    print(f'Loading dataset {args.dataset}...')
-    dataset_keys = {'xsum': 'document', 'squad': 'context', 'writing': 'document'}
-    data = generate_data(args, args.dataset, dataset_keys[args.dataset] if args.dataset in dataset_keys else None)
+    dataset_fullname = get_dataset_fullname(args.dataset)
+
+    print(f'Loading dataset {dataset_fullname}...')
+    dataset_keys = {'xsum': 'document', 'squad': 'context', 'writing': 'document', 'SirlyDreamer/THUCNews': 'text'}
+    data = generate_data(args, dataset_fullname, dataset_keys[dataset_fullname] if dataset_fullname in dataset_keys else None)
 
     save_data(args.output_file, args, data)

@@ -8,9 +8,18 @@ import torch
 import time
 import os
 
+local_model_name = {
+    # 'Qwen/Qwen2-1.5B': 'qwen2-1_5b-base',
+    # 'Qwen/Qwen2-7B': 'qwen2-7b-base',
+    'Qwen/Qwen2-72B': 'qwen2-72b-base',
+}
+
 def from_pretrained(cls, model_name, kwargs, cache_dir):
     # use local model if it exists
-    local_path = os.path.join(cache_dir, 'local.' + model_name.replace("/", "_"))
+    if model_name in local_model_name:
+        local_path = os.path.join("/data1/model", local_model_name[model_name])
+    else:
+        local_path = os.path.join(cache_dir, model_name.replace("/", "_"))
     if os.path.exists(local_path):
         return cls.from_pretrained(local_path, **kwargs)
     return cls.from_pretrained(model_name, **kwargs, cache_dir=cache_dir)
@@ -29,8 +38,15 @@ model_fullnames = {  'gpt2': 'gpt2',
                      'llama2-13b': 'TheBloke/Llama-2-13B-fp16',
                      'bloom-7b1': 'bigscience/bloom-7b1',
                      'opt-13b': 'facebook/opt-13b',
+
+                     # add Chinese Models
+                     'Qwen2-1.5B': 'Qwen/Qwen2-1.5B',
+                     'Qwen2-7B': 'Qwen/Qwen2-7B',
+                     'Qwen2-72B': 'Qwen/Qwen2-72B',
+                     'glm-4-9b': 'THUDM/glm-4-9b'
                      }
-float16_models = ['gpt-j-6B', 'gpt-neox-20b', 'llama-13b', 'llama2-13b', 'bloom-7b1', 'opt-13b']
+
+float16_models = ['gpt-j-6B', 'gpt-neox-20b', 'llama-13b', 'llama2-13b', 'bloom-7b1', 'opt-13b', 'Qwen2-72B', 'Qwen2-7B', 'glm-4-9b']
 
 def get_model_fullname(model_name):
     return model_fullnames[model_name] if model_name in model_fullnames else model_name
@@ -53,6 +69,9 @@ def load_model(model_name, device, cache_dir):
 def load_tokenizer(model_name, for_dataset, cache_dir):
     model_fullname = get_model_fullname(model_name)
     optional_tok_kwargs = {}
+    if model_fullname in ['Qwen/Qwen-1_8B', 'THUDM/glm-4-9b']:
+        print("Trust Remote Code!")
+        optional_tok_kwargs['trust_remote_code'] = True
     if "facebook/opt-" in model_fullname:
         print("Using non-fast tokenizer for OPT")
         optional_tok_kwargs['fast'] = False
