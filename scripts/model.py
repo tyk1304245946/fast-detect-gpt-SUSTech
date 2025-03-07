@@ -11,7 +11,7 @@ import os
 local_model_name = {
     # 'Qwen/Qwen2-1.5B': 'qwen2-1_5b-base',
     # 'Qwen/Qwen2-7B': 'qwen2-7b-base',
-    'Qwen/Qwen2-72B': 'qwen2-72b-base',
+    # 'Qwen/Qwen2-72B': 'qwen2-72b-base',
 }
 
 def from_pretrained(cls, model_name, kwargs, cache_dir):
@@ -40,10 +40,14 @@ model_fullnames = {  'gpt2': 'gpt2',
                      'opt-13b': 'facebook/opt-13b',
 
                      # add Chinese Models
+                     'Qwen2-0.5B': 'Qwen/Qwen2-0.5B',
                      'Qwen2-1.5B': 'Qwen/Qwen2-1.5B',
                      'Qwen2-7B': 'Qwen/Qwen2-7B',
                      'Qwen2-72B': 'Qwen/Qwen2-72B',
-                     'glm-4-9b': 'THUDM/glm-4-9b'
+                     'glm-4-9b': 'THUDM/glm-4-9b',
+                     'Yi-1.5-6B': '01-ai/Yi-1.5-6B',
+                     'Yi-1.5-9B': '01-ai/Yi-1.5-9B',
+                     'Yi-1.5-34B': '01-ai/Yi-1.5-34B',
                      }
 
 float16_models = ['gpt-j-6B', 'gpt-neox-20b', 'llama-13b', 'llama2-13b', 'bloom-7b1', 'opt-13b', 'Qwen2-72B', 'Qwen2-7B', 'glm-4-9b']

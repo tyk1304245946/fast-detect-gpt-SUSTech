@@ -27,15 +27,6 @@ class PrefixSampler:
         self.base_tokenizer = load_tokenizer(args.base_model_name, args.dataset, args.cache_dir)
         self.base_model = load_model(args.base_model_name, args.device, args.cache_dir)
 
-        # use nn.DataParallel to support multiple GPUs
-        if torch.cuda.device_count() > 1:
-            self.base_model = torch.nn.DataParallel(self.base_model)
-        self.base_model.to(self.args.device)
-
-        self.base_model = self.base_model.module if isinstance(self.base_model, torch.nn.DataParallel) else self.base_model
-        
-
-
     def _sample_from_model(self, texts, min_words=55, truncate_ratio=0.5):
         # encode each text as a list of token ids
         if self.args.dataset == 'pubmed':
@@ -156,36 +147,35 @@ class PrefixSampler:
 
 def get_likelihood(logits, labels, pad_index):
     labels = labels.unsqueeze(-1) if labels.ndim == logits.ndim - 1 else labels
-    logits_cuda = logits.to(labels.device)
-    lprobs = torch.log_softmax(logits_cuda, dim=-1)
+    lprobs = torch.log_softmax(logits, dim=-1)
     log_likelihood = lprobs.gather(dim=-1, index=labels)
     mask = labels != pad_index
     log_likelihood = (log_likelihood * mask).sum(dim=1) / mask.sum(dim=1)
     return log_likelihood.squeeze(-1)
 
-def get_log_prob(sampler, text):
-    tokenized = sampler.base_tokenizer(text, return_tensors="pt", padding=True).to(sampler.args.device)
-    labels = tokenized.input_ids[:, 1:]
-    with torch.no_grad():
-        logits_score = sampler.base_model(**tokenized).logits[:, :-1]
-        return get_likelihood(logits_score, labels, sampler.base_tokenizer.pad_token_id)
-
 # def get_log_prob(sampler, text):
-#     # 将 tokenized 数据迁移到设备上，并且支持多GPU
 #     tokenized = sampler.base_tokenizer(text, return_tensors="pt", padding=True).to(sampler.args.device)
 #     labels = tokenized.input_ids[:, 1:]
-    
-#     # 包装模型以支持多GPU
-#     if torch.cuda.device_count() > 1:
-#         sampler.base_model = torch.nn.DataParallel(sampler.base_model)
-#     # 确保模型在设备上
-#     sampler.base_model.to(sampler.args.device)
-    
 #     with torch.no_grad():
-#         sampler.base_model = sampler.base_model.module if isinstance(sampler.base_model, torch.nn.DataParallel) else sampler.base_model
-        
 #         logits_score = sampler.base_model(**tokenized).logits[:, :-1]
 #         return get_likelihood(logits_score, labels, sampler.base_tokenizer.pad_token_id)
+
+def get_log_prob(sampler, text):
+    # 将 tokenized 数据迁移到设备上，并且支持多GPU
+    tokenized = sampler.base_tokenizer(text, return_tensors="pt", padding=True).to(sampler.args.device)
+    labels = tokenized.input_ids[:, 1:]
+    
+    # 包装模型以支持多GPU
+    if torch.cuda.device_count() > 1:
+        sampler.base_model = torch.nn.DataParallel(sampler.base_model)
+    # 确保模型在设备上
+    sampler.base_model.to(sampler.args.device)
+    
+    with torch.no_grad():
+        sampler.base_model = sampler.base_model.module if isinstance(sampler.base_model, torch.nn.DataParallel) else sampler.base_model
+        
+        logits_score = sampler.base_model(**tokenized).logits[:, :-1]
+        return get_likelihood(logits_score, labels, sampler.base_tokenizer.pad_token_id)
 
 def get_log_probs(sampler, texts):
     batch_size = sampler.args.batch_size
@@ -198,21 +188,6 @@ def get_log_probs(sampler, texts):
             lprobs = get_likelihood(logits_score, labels, sampler.base_tokenizer.pad_token_id)
             batch_lprobs.append(lprobs)
     return torch.cat(batch_lprobs, dim=0)
-
-# def get_log_probs(sampler, texts):
-#     batch_size = sampler.args.batch_size
-#     batch_lprobs = []
-#     for batch in range(len(texts) // batch_size):
-#         tokenized = sampler.base_tokenizer(texts[batch * batch_size:(batch + 1) * batch_size], return_tensors="pt", padding=True).to(sampler.args.device)
-#         labels = tokenized.input_ids[:, 1:]
-#         if torch.cuda.device_count() > 1:
-#             sampler.base_model = torch.nn.DataParallel(sampler.base_model)
-#         sampler.base_model.to(sampler.args.device)
-#         with torch.no_grad():
-#             sampler.base_model = sampler.base_model.module if isinstance(sampler.base_model, torch.nn.DataParallel) else sampler
-#             logits_score = sampler.base_model(**tokenized).logits[:, :-1]
-#             lprobs = get_likelihood(logits_score, labels, sampler.base_tokenizer.pad_token_id)
-#             batch_lprobs.append(lprobs)
 
 def get_regen_samples(sampler, text):
     data = [text] * sampler.args.regen_number

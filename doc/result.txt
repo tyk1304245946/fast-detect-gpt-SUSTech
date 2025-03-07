@@ -1,0 +1,98 @@
+THUCNews_Qwen2-1.5B.sampling_discrepancy.json: roc_auc=0.9926 n_samples=500 r:-0.12/1.04 s:5.02/2.14
+THUCNews_Qwen2-1.5B.entropy.json: roc_auc=0.4593 n_samples=500 r:2.76/0.47 s:2.68/0.44
+THUCNews_Qwen2-1.5B.lrr.json: roc_auc=0.9552 n_samples=500 r:1.92/0.13 s:2.18/0.09
+THUCNews_Qwen2-1.5B.likelihood.json: roc_auc=0.8303 n_samples=500 r:-2.78/0.56 s:-2.16/0.34
+THUCNews_Qwen2-1.5B.npr.json: roc_auc=0.5016 n_samples=500 r:1.00/0.02 s:1.01/0.03
+THUCNews_Qwen2-1.5B.perturbation_100.json: roc_auc=0.5010 n_samples=500 r:0.09/0.36 s:0.12/0.46
+THUCNews_Qwen2-1.5B.logrank.json: roc_auc=0.8835 n_samples=500 r:-1.47/0.36 s:-1.00/0.19
+THUCNews_Qwen2-1.5B.rank.json: roc_auc=0.9136 n_samples=500 r:-84.08/80.77 s:-18.17/29.52
+
+THUCNews_Qwen2-7B.entropy.json: roc_auc=0.4749 n_samples=500 r:2.48/0.50 s:2.42/0.43
+THUCNews_Qwen2-7B.lrr.json: roc_auc=0.9181 n_samples=500 r:1.97/0.17 s:2.19/0.09
+THUCNews_Qwen2-7B.logrank.json: roc_auc=0.8308 n_samples=500 r:-1.31/0.38 s:-0.92/0.18
+THUCNews_Qwen2-7B.rank.json: roc_auc=0.8725 n_samples=500 r:-72.34/134.16 s:-15.87/26.66
+THUCNews_Qwen2-7B.likelihood.json: roc_auc=0.7806 n_samples=500 r:-2.52/0.59 s:-2.01/0.34
+THUCNews_Qwen2-7B.perturbation_100.json: roc_auc=0.5007 n_samples=500 r:0.06/0.29 s:0.09/0.42
+THUCNews_Qwen2-7B.sampling_discrepancy.json: roc_auc=0.9901 n_samples=500 r:-0.23/1.02 s:3.91/1.62
+THUCNews_Qwen2-7B.npr.json: roc_auc=0.5026 n_samples=500 r:1.00/0.03 s:1.01/0.03
+
+local-wiki-zh_Qwen2-1.5B.entropy.json: roc_auc=0.3662 n_samples=5000 r:2.49/0.67 s:2.16/0.63
+local-news_Qwen2-1.5B.rank.json: roc_auc=0.8762 n_samples=5000 r:-128.12/225.34 s:-32.92/47.29
+local-news-zh_Qwen2-7B.rank.json: roc_auc=0.8227 n_samples=5000 r:-112.31/382.44 s:-33.51/78.43
+local-wiki-zh_Qwen2-1.5B.logrank.json: roc_auc=0.8377 n_samples=5000 r:-1.38/0.53 s:-0.83/0.31
+local-news-zh_Qwen2-1.5B.sampling_discrepancy.json: roc_auc=0.9931 n_samples=5000 r:-0.49/1.10 s:6.39/2.65
+local-webnovel_Qwen2-7B.rank.json: roc_auc=0.8376 n_samples=5000 r:-98.05/35.61 s:-54.51/69.73
+local-webnovel_Qwen2-7B.logrank.json: roc_auc=0.8914 n_samples=5000 r:-1.59/0.19 s:-1.03/0.40
+local-webnovel_Qwen2-1.5B.sampling_discrepancy.json: roc_auc=0.9867 n_samples=5000 r:-0.98/1.08 s:7.40/3.40
+local-news-zh_Qwen2-1.5B.logrank.json: roc_auc=0.9072 n_samples=5000 r:-1.50/0.44 s:-0.89/0.26
+local-news-zh_Qwen2-1.5B.likelihood.json: roc_auc=0.8769 n_samples=5000 r:-2.81/0.68 s:-1.93/0.50
+local-news_Qwen2-1.5B.logrank.json: roc_auc=0.9072 n_samples=5000 r:-1.50/0.44 s:-0.89/0.26
+local-webnovel_Qwen2-7B.entropy.json: roc_auc=0.3088 n_samples=5000 r:2.86/0.24 s:2.51/0.64
+local-news_Qwen2-1.5B.likelihood.json: roc_auc=0.8769 n_samples=5000 r:-2.81/0.68 s:-1.93/0.50
+local-webnovel_Qwen2-7B.likelihood.json: roc_auc=0.8692 n_samples=5000 r:-2.97/0.28 s:-2.13/0.69
+local-webnovel_Qwen2-1.5B.entropy.json: roc_auc=0.2203 n_samples=5000 r:3.16/0.25 s:2.71/0.60
+local-news-zh_Qwen2-7B.likelihood.json: roc_auc=0.8213 n_samples=5000 r:-2.49/0.70 s:-1.82/0.47
+local-webnovel_Qwen2-1.5B.likelihood.json: roc_auc=0.9459 n_samples=5000 r:-3.24/0.28 s:-2.13/0.60
+local-news-zh_Qwen2-1.5B.entropy.json: roc_auc=0.3860 n_samples=5000 r:2.75/0.60 s:2.49/0.62
+local-webnovel_Qwen2-7B.sampling_discrepancy.json: roc_auc=0.9705 n_samples=5000 r:-1.43/1.11 s:4.47/3.06
+local-news-zh_Qwen2-1.5B.rank.json: roc_auc=0.8762 n_samples=5000 r:-128.12/225.34 s:-32.92/47.29
+local-wiki-zh_Qwen2-7B.logrank.json: roc_auc=0.7942 n_samples=5000 r:-1.16/0.46 s:-0.75/0.26
+local-wiki-zh_Qwen2-7B.entropy.json: roc_auc=0.4264 n_samples=5000 r:2.14/0.67 s:1.95/0.57
+local-news-zh_Qwen2-7B.entropy.json: roc_auc=0.4310 n_samples=5000 r:2.43/0.62 s:2.28/0.54
+local-news_Qwen2-1.5B.entropy.json: roc_auc=0.3860 n_samples=5000 r:2.75/0.60 s:2.49/0.62
+local-webnovel_Qwen2-1.5B.logrank.json: roc_auc=0.9575 n_samples=5000 r:-1.78/0.19 s:-1.00/0.35
+local-wiki-zh_Qwen2-7B.sampling_discrepancy.json: roc_auc=0.9231 n_samples=5000 r:-0.53/1.02 s:3.49/2.91
+local-news_Qwen2-1.5B.sampling_discrepancy.json: roc_auc=0.9931 n_samples=5000 r:-0.49/1.10 s:6.39/2.65
+local-wiki-zh_Qwen2-1.5B.rank.json: roc_auc=0.8077 n_samples=5000 r:-134.95/381.97 s:-39.41/83.56
+local-wiki-zh_Qwen2-7B.rank.json: roc_auc=0.7617 n_samples=5000 r:-141.01/496.50 s:-44.89/116.55
+local-news-zh_Qwen2-7B.logrank.json: roc_auc=0.8534 n_samples=5000 r:-1.30/0.44 s:-0.83/0.25
+local-wiki-zh_Qwen2-1.5B.likelihood.json: roc_auc=0.8015 n_samples=5000 r:-2.59/0.83 s:-1.77/0.57
+local-news-zh_Qwen2-7B.sampling_discrepancy.json: roc_auc=0.9894 n_samples=5000 r:-0.60/1.14 s:5.40/2.37
+local-webnovel_Qwen2-1.5B.rank.json: roc_auc=0.9276 n_samples=5000 r:-125.55/40.04 s:-43.81/55.15
+local-wiki-zh_Qwen2-7B.likelihood.json: roc_auc=0.7601 n_samples=5000 r:-2.26/0.77 s:-1.62/0.49
+local-wiki-zh_Qwen2-1.5B.sampling_discrepancy.json: roc_auc=0.9360 n_samples=5000 r:-0.37/1.07 s:3.99/2.94
+
+
+
+
+
+----
+XSum
+----
+Method Qwen2-1.5B Qwen2-7B Avg.
+Likelihood 0.7669 0.7383 0.7526
+Entropy 0.7195 0.6801 0.6998
+LogRank 0.8400 0.7878 0.8139
+Fast-DetectGPT 0.9915 0.9874 0.9894
+----
+THUCNews
+----
+Method Qwen2-1.5B Qwen2-7B Avg.
+Likelihood 0.8303 0.7806 0.8055
+Entropy 0.4593 0.4749 0.4671
+LogRank 0.8835 0.8308 0.8571
+Fast-DetectGPT 0.9926 0.9901 0.9914
+----
+local-news-zh
+----
+Method Qwen2-1.5B Qwen2-7B Avg.
+Likelihood 0.8769 0.8213 0.8491
+Entropy 0.3860 0.4310 0.4085
+LogRank 0.9072 0.8534 0.8803
+Fast-DetectGPT 0.9931 0.9894 0.9913
+----
+local-webnovel
+----
+Method Qwen2-1.5B Qwen2-7B Avg.
+Likelihood 0.9459 0.8692 0.9075
+Entropy 0.2203 0.3088 0.2646
+LogRank 0.9575 0.8914 0.9245
+Fast-DetectGPT 0.9867 0.9705 0.9786
+----
+local-wiki-zh
+----
+Method Qwen2-1.5B Qwen2-7B Avg.
+Likelihood 0.8015 0.7601 0.7808
+Entropy 0.3662 0.4264 0.3963
+LogRank 0.8377 0.7942 0.8160
+Fast-DetectGPT 0.9360 0.9231 0.9296

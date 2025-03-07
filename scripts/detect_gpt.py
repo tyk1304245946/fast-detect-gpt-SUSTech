@@ -33,7 +33,10 @@ def load_mask_tokenizer(model_name, max_length, cache_dir):
 
 def tokenize_and_mask(text, span_length, pct, ceil_pct=False):
     buffer_size = 1
-    tokens = text.split(' ')
+    if arg.dataset in ['THUCNews']:
+        tokens = list(text)
+    else:
+        tokens = text.split(' ')
     mask_string = '<<<mask>>>'
 
     n_spans = pct * len(tokens) / (span_length + buffer_size * 2)
@@ -58,11 +61,17 @@ def tokenize_and_mask(text, span_length, pct, ceil_pct=False):
             tokens[idx] = f'<extra_id_{num_filled}>'
             num_filled += 1
     assert num_filled == n_masks, f"num_filled {num_filled} != n_masks {n_masks}"
-    text = ' '.join(tokens)
+    if arg.dataset in ['THUCNews']:
+        text = ''.join(tokens)
+    else:
+        text = ' '.join(tokens)
     return text
 
 def count_masks(texts):
-    return [len([x for x in text.split() if x.startswith("<extra_id_")]) for text in texts]
+    if arg.dataset in ['THUCNews']:
+        return [len([x for x in list(text) if x.startswith("<extra_id_")]) for text in texts]
+    else
+        return [len([x for x in text.split() if x.startswith("<extra_id_")]) for text in texts]
 
 # replace each masked span with a sample from T5 mask_model
 def replace_masks(args, mask_model, mask_tokenizer, texts):
@@ -78,7 +87,10 @@ def extract_fills(texts):
     texts = [x.replace("<pad>", "").replace("</s>", "").strip() for x in texts]
 
     # return the text in between each matched mask token
-    extracted_fills = [pattern.split(x)[1:-1] for x in texts]
+    if arg.dataset in ['THUCNews']:
+        extracted_fills = [re.split(r"<extra_id_\d+>", x)[1:-1] for x in texts]
+    else:
+        extracted_fills = [pattern.split(x)[1:-1] for x in texts]
 
     # remove whitespace around each fill
     extracted_fills = [[y.strip() for y in x] for x in extracted_fills]
@@ -87,7 +99,10 @@ def extract_fills(texts):
 
 def apply_extracted_fills(masked_texts, extracted_fills):
     # split masked text into tokens, only splitting on spaces (not newlines)
-    tokens = [x.split(' ') for x in masked_texts]
+    if arg.dataset in ['THUCNews']:
+        tokens = [list(x) for x in masked_texts]
+    else:
+        tokens = [x.split(' ') for x in masked_texts]
 
     n_expected = count_masks(masked_texts)
 
@@ -100,7 +115,10 @@ def apply_extracted_fills(masked_texts, extracted_fills):
                 text[text.index(f"<extra_id_{fill_idx}>")] = fills[fill_idx]
 
     # join tokens back into text
-    texts = [" ".join(x) for x in tokens]
+    if arg.dataset in ['THUCNews']:
+        texts = ["".join(x) for x in tokens]
+    else:
+        texts = [" ".join(x) for x in tokens]
     return texts
 
 def perturb_texts_(args, mask_model, mask_tokenizer, texts, ceil_pct=False):
